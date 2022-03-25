@@ -1,4 +1,4 @@
-// import { Link } from "remix";
+import { Link } from "remix";
 // import { useOptionalUser } from "~/utils";
 
 import { Theme, useTheme } from "~/utils/ThemeProvider";
@@ -13,14 +13,22 @@ export default function Index() {
     );
   };
   return (
-    <div className="min-h-screen bg-white transition-colors dark:bg-gray-900">
-      <div className="flex flex-wrap justify-center gap-4 py-8">
+    <div>
+      <div className="flex flex-wrap justify-center gap-4 ">
         <button
           className="rounded-xl border-4 border-gray-50 bg-gray-900 py-4 px-28 text-3xl text-gray-50"
           onClick={toggleTheme}
         >
           Current is {theme === Theme.LIGHT ? "Light" : "Dark"} Mode
         </button>
+      </div>
+      <div className="flex flex-wrap justify-center gap-4 py-8">
+        <Link
+          to="/random-url"
+          className="rounded-xl border-4 border-gray-50 bg-gray-900 py-4 px-28 text-3xl text-gray-50"
+        >
+          Go to 404 Page
+        </Link>
       </div>
       <div className="mx-4 mt-16 max-w-xl text-gray-900 dark:text-gray-50 sm:mx-auto">
         <h1 className="text-4xl font-bold">Hey there 👋</h1>
