@@ -1,5 +1,5 @@
 import { json, LoaderFunction, useCatch, useLoaderData } from "remix";
-import { FourOhFour, ErrorPage } from "~/components/errors";
+import { FourOhFour } from "~/components/errors";
 import { getThemeSession } from "~/utils/theme.server";
 import { Theme } from "~/utils/ThemeProvider";
 

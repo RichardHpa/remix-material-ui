@@ -12,9 +12,6 @@ import {
   useLocation,
 } from "remix";
 import type { LinksFunction, MetaFunction, LoaderFunction } from "remix";
-import clsx from "clsx";
-
-import { Navbar } from "~/components/Navbar";
 
 import {
   ThemeProvider,
@@ -27,9 +24,9 @@ import { getUser } from "./session.server";
 
 import { Theme } from "~/utils/ThemeProvider";
 
-import mainStyles from "./styles/styles.css";
-import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { ErrorPage } from "./components/errors";
+import { MuiThemeProvider } from "./utils/theme";
+import { Container } from "@mui/material";
 
 export type LoaderData = {
   theme: Theme | null;
@@ -38,8 +35,10 @@ export type LoaderData = {
 
 export const links: LinksFunction = () => {
   return [
-    { rel: "stylesheet", href: tailwindStylesheetUrl },
-    { rel: "stylesheet", href: mainStyles },
+    {
+      rel: "stylesheet",
+      href: "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap",
+    },
   ];
 };
 
@@ -66,21 +65,26 @@ function Document({
 }) {
   const data = useLoaderData<LoaderData>();
   const [theme] = useTheme();
+
   return (
-    <html lang="en" className={clsx(theme)}>
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <title>{title}</title>
         <Links />
+        <meta
+          name="emotion-insertion-point"
+          content="emotion-insertion-point"
+        />
         <NonFlashOfWrongThemeEls ssrTheme={Boolean(data.theme)} />
       </head>
       <body>
-        <Navbar />
-        <div className="min-h-screen bg-white py-8 transition-colors dark:bg-gray-900">
-          {children}
-        </div>
+        {/* <Navbar /> */}
+        <MuiThemeProvider mode={theme!}>
+          <Container maxWidth="md">{children}</Container>
+        </MuiThemeProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
@@ -96,28 +100,6 @@ export function App() {
     </Document>
   );
 }
-
-// export function App() {
-//   const data = useLoaderData<LoaderData>();
-//   const [theme] = useTheme();
-
-//   return (
-//     <html lang="en" className={clsx(theme)}>
-//       <head>
-//         <Meta />
-//         <Links />
-//         <NonFlashOfWrongThemeEls ssrTheme={Boolean(data.theme)} />
-//       </head>
-//       <body>
-//         <Navbar />
-//         <Outlet />
-//         <ScrollRestoration />
-//         <Scripts />
-//         <LiveReload />
-//       </body>
-//     </html>
-//   );
-// }
 
 export default function AppWithProviders() {
   const data = useLoaderData<LoaderData>();
@@ -144,19 +126,21 @@ export function CatchBoundary() {
 
   if (caught.status === 404) {
     return (
-      <html lang="en" className="dark">
+      <html lang="en">
         <head>
           <title>Oh no...</title>
           <Links />
         </head>
-        <body className="min-h-screen bg-white py-8 transition-colors dark:bg-gray-900">
-          <div></div>
-          <ErrorPage
-            heroProps={{
-              title: "404 - Oh no, you found a page that's missing stuff.",
-              subtitle: `"${location.pathname}" is not a page on kentcdodds.com. So sorry.`,
-            }}
-          />
+        <body>
+          <Container maxWidth="md">
+            <ErrorPage
+              heroProps={{
+                title: "404 - Oh no, you found a page that's missing stuff.",
+                subtitle: `"${location.pathname}" is not a page on kentcdodds.com. So sorry.`,
+              }}
+            />
+          </Container>
+
           <Scripts />
         </body>
       </html>
