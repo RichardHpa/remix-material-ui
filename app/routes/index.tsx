@@ -2,23 +2,24 @@ import { Link } from "remix";
 import { Button, Box, Typography } from "@mui/material";
 // import { useOptionalUser } from "~/utils";
 
-import { Theme, useTheme } from "~/utils/ThemeProvider";
+// import { Theme, useTheme } from "~/utils/ThemeProvider";
 
 export default function Index() {
   // const user = useOptionalUser();
-  const [theme, setTheme] = useTheme();
+  // const [theme, setTheme] = useTheme();
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) =>
-      prevTheme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT
-    );
-  };
+  // const toggleTheme = () => {
+  //   setTheme((prevTheme) =>
+  //     prevTheme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT
+  //   );
+  // };
+
   return (
     <Box>
       <Box>
-        <Button onClick={toggleTheme}>
+        {/* <Button onClick={toggleTheme}>
           Current is {theme === Theme.LIGHT ? "Light" : "Dark"} Mode
-        </Button>
+        </Button> */}
       </Box>
       <Box>
         <Button component={Link} to="/random-url">
@@ -28,6 +29,11 @@ export default function Index() {
       <Box>
         <Button component={Link} to="/random/random">
           Go to /random/random
+        </Button>
+      </Box>
+      <Box>
+        <Button component={Link} to="/throw-error">
+          Throw Error
         </Button>
       </Box>
       <Box>

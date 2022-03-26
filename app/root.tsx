@@ -1,6 +1,4 @@
 import {
-  json,
-  Link,
   Links,
   LiveReload,
   Meta,
@@ -8,30 +6,23 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
-  useLoaderData,
   useLocation,
 } from "remix";
-import type { LinksFunction, MetaFunction, LoaderFunction } from "remix";
+import { Navbar } from "./components/Navbar";
 
-import {
-  ThemeProvider,
-  useTheme,
-  NonFlashOfWrongThemeEls,
-} from "~/utils/ThemeProvider";
+import type { LinksFunction, MetaFunction } from "remix";
 
-import { getThemeSession } from "./utils/theme.server";
 import { getUser } from "./session.server";
 
-import { Theme } from "~/utils/ThemeProvider";
-
 import { ErrorPage } from "./components/errors";
-import { MuiThemeProvider } from "./utils/theme";
-import { Container } from "@mui/material";
+import { Container, CssBaseline } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material";
 
 export type LoaderData = {
-  theme: Theme | null;
   user: Awaited<ReturnType<typeof getUser>>;
 };
+
+const theme = createTheme({});
 
 export const links: LinksFunction = () => {
   return [
@@ -48,14 +39,6 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const themeSession = await getThemeSession(request);
-  return json<LoaderData>({
-    user: await getUser(request),
-    theme: themeSession.getTheme(),
-  });
-};
-
 function Document({
   children,
   title = `New Remix Ap`,
@@ -63,9 +46,6 @@ function Document({
   children: React.ReactNode;
   title?: string;
 }) {
-  const data = useLoaderData<LoaderData>();
-  const [theme] = useTheme();
-
   return (
     <html lang="en">
       <head>
@@ -78,13 +58,13 @@ function Document({
           name="emotion-insertion-point"
           content="emotion-insertion-point"
         />
-        <NonFlashOfWrongThemeEls ssrTheme={Boolean(data.theme)} />
       </head>
       <body>
-        {/* <Navbar /> */}
-        <MuiThemeProvider mode={theme!}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Navbar />
           <Container maxWidth="md">{children}</Container>
-        </MuiThemeProvider>
+        </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
@@ -93,21 +73,11 @@ function Document({
   );
 }
 
-export function App() {
+export default function App() {
   return (
     <Document>
       <Outlet />
     </Document>
-  );
-}
-
-export default function AppWithProviders() {
-  const data = useLoaderData<LoaderData>();
-
-  return (
-    <ThemeProvider specifiedTheme={data.theme}>
-      <App />
-    </ThemeProvider>
   );
 }
 
@@ -126,24 +96,14 @@ export function CatchBoundary() {
 
   if (caught.status === 404) {
     return (
-      <html lang="en">
-        <head>
-          <title>Oh no...</title>
-          <Links />
-        </head>
-        <body>
-          <Container maxWidth="md">
-            <ErrorPage
-              heroProps={{
-                title: "404 - Oh no, you found a page that's missing stuff.",
-                subtitle: `"${location.pathname}" is not a page on kentcdodds.com. So sorry.`,
-              }}
-            />
-          </Container>
-
-          <Scripts />
-        </body>
-      </html>
+      <Document>
+        <ErrorPage
+          heroProps={{
+            title: "404 - Oh no, you found a page that's missing stuff.",
+            subtitle: `"${location.pathname}" does not exist in this site.`,
+          }}
+        />
+      </Document>
     );
   }
   throw new Error(`Unhandled error: ${caught.status}`);
@@ -151,20 +111,13 @@ export function CatchBoundary() {
 
 export function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <html lang="en" className="h-full">
-      <head>
-        <Meta />
-        <Links />
-      </head>
-      <body className="h-full">
-        <div className="error-container">
-          <h1>App Error</h1>
-          <pre>{error.message}</pre>
-        </div>
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
-      </body>
-    </html>
+    <Document>
+      <ErrorPage
+        heroProps={{
+          title: "App Error.",
+          subtitle: error.message,
+        }}
+      />
+    </Document>
   );
 }
