@@ -3,7 +3,7 @@ import { RemixServer } from "remix";
 import type { EntryContext } from "remix";
 
 import createEmotionCache from "~/utils/createEmotionCache";
-import { theme } from "~/theme";
+import { getTheme } from "~/themes";
 
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
@@ -21,7 +21,7 @@ export default function handleRequest(
 
   const MuiRemixServer = () => (
     <CacheProvider value={cache}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={getTheme("light")}>
         <CssBaseline />
         <RemixServer context={remixContext} url={request.url} />
       </ThemeProvider>

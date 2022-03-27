@@ -16,10 +16,12 @@ import type { LinksFunction, MetaFunction } from "remix";
 import { getUser } from "./session.server";
 
 import { ErrorPage } from "./components/errors";
-import { Container, CssBaseline } from "@mui/material";
-import { ThemeProvider, createTheme } from "@mui/material";
+import {
+  Container,
+  createTheme,
+  unstable_useEnhancedEffect as useEnhancedEffect,
+} from "@mui/material";
 import { withEmotionCache } from "@emotion/react";
-import { unstable_useEnhancedEffect as useEnhancedEffect } from "@mui/material";
 import ClientStyleContext from "./utils/ClientStyleContext";
 
 export type LoaderData = {

@@ -8,7 +8,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import ClientStyleContext from "./utils/ClientStyleContext";
 import createEmotionCache from "./utils/createEmotionCache";
-import { theme } from "./theme";
+import { getTheme } from "./themes";
 
 interface ClientCacheProviderProps {
   children: React.ReactNode;
@@ -29,7 +29,7 @@ function ClientCacheProvider({ children }: ClientCacheProviderProps) {
 
 hydrate(
   <ClientCacheProvider>
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={getTheme("light")}>
       <CssBaseline />
       <RemixBrowser />
     </ThemeProvider>

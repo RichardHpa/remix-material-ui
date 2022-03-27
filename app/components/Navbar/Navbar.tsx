@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 // import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
+import { Link } from "remix";
 
 const Offset = styled("div")(({ theme }) => theme.mixins.toolbar);
 
@@ -22,7 +23,14 @@ export const Navbar = () => {
             disableGutters
             sx={{ display: "flex", justifyContent: "space-between" }}
           >
-            <Typography variant="h6" noWrap component="div" sx={{ mr: 2 }}>
+            <Typography
+              variant="h6"
+              noWrap
+              component={Link}
+              to="/"
+              sx={{ mr: 2 }}
+              color="inherit"
+            >
               LOGO
             </Typography>
 
@@ -38,7 +46,7 @@ export const Navbar = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Offset />
+      <Offset sx={{ marginBottom: 2 }} />
     </>
   );
 };
