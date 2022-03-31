@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useMemo, useRef } from "react";
 import {
   Links,
   LiveReload,
@@ -7,8 +7,12 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
+  useLoaderData,
   useLocation,
+  useFetcher,
 } from "remix";
+import type { LoaderFunction } from "remix";
+
 import { Navbar } from "./components/Navbar";
 
 import type { LinksFunction, MetaFunction } from "remix";
@@ -20,9 +24,20 @@ import {
   Container,
   createTheme,
   unstable_useEnhancedEffect as useEnhancedEffect,
+  ThemeProvider,
+  CssBaseline,
 } from "@mui/material";
 import { withEmotionCache } from "@emotion/react";
-import ClientStyleContext from "./utils/ClientStyleContext";
+import { useClientStyle } from "./utils/ClientStyleContext";
+// import { Themes } from "./themes";
+import { getTheme, Themes } from "~/themes";
+import {
+  SettingsConsumer,
+  SettingsProvider,
+  useSettings,
+} from "./utils/SettingsProvider";
+
+import { getThemeSession } from "~/utils/theme.server";
 
 export type LoaderData = {
   user: Awaited<ReturnType<typeof getUser>>;
@@ -45,14 +60,83 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
+export type RootLoaderData = {
+  theme: Themes | null | any;
+};
+
+// export const loader: LoaderFunction = async ({
+//   request,
+// }): Promise<RootLoaderData> => {
+//   const themeSession = await getThemeSession(request);
+//   // console.log(themeSession);
+//   return {
+//     themeName: themeSession,
+//   };
+//   //   // themeName: await getUserTheme(request),
+//   // };
+// };
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const themeSession = await getThemeSession(request);
+  const data: RootLoaderData = {
+    theme: themeSession.getTheme(),
+  };
+
+  return data;
+};
+
 interface DocumentProps {
   children: React.ReactNode;
   title?: string;
+  theme?: any;
 }
 
 const Document = withEmotionCache(
-  ({ children, title }: DocumentProps, emotionCache) => {
-    const clientStyleData = useContext(ClientStyleContext);
+  ({ children, title, theme }: DocumentProps, emotionCache) => {
+    const clientStyleData = useClientStyle();
+    const { theme: settingTheme } = useSettings();
+    // console.log("clientStyleData", clientStyleData.theme);
+
+    // console.log("loaderData", loaderData?.theme);
+    // const themeName: Themes = useMemo(() => {
+    //   return loaderData?.theme || clientStyleData.theme || Themes.LIGHT;
+    // }, [clientStyleData, loaderData]);
+    // const themeName: Themes = useMemo(() => {
+    //   return Themes.LIGHT;
+    // }, []);
+
+    const themeName: Themes = useMemo(() => {
+      return theme || settingTheme || Themes.LIGHT;
+    }, [settingTheme, theme]);
+
+    // const persistTheme = useFetcher();
+
+    // const persistThemeRef = useRef(persistTheme);
+    // useEffect(() => {
+    //   persistThemeRef.current = persistTheme;
+    // }, [persistTheme]);
+
+    // const mountRun = useRef(false);
+
+    // useEffect(() => {
+    //   // if (mountRun.current) {
+    //   //   console.log("already mounted");
+    //   // }
+    //   if (!mountRun.current) {
+    //     // console.log("first mount");
+    //     // clientStyleData.setTheme(loaderData?.theme);
+    //     mountRun.current = true;
+    //     return;
+    //   }
+    //   if (!theme) {
+    //     return;
+    //   }
+
+    //   persistThemeRef.current.submit(
+    //     { theme: themeName },
+    //     { action: "action/set-theme", method: "post" }
+    //   );
+    // }, [clientStyleData, themeName]);
 
     // Only executed on client
     useEnhancedEffect(() => {
@@ -70,12 +154,18 @@ const Document = withEmotionCache(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // // Only executed on client
+    // useEnhancedEffect(() => {
+    //   // change the theme in style context
+    //   clientStyleData.setTheme(themeName);
+    // }, [themeName]);
+
     return (
       <html lang="en">
         <head>
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width,initial-scale=1" />
-          <meta name="theme-color" content={theme.palette.primary.main} />
+          {/* <meta name="theme-color" content={theme.palette.primary.main} /> */}
           {title ? <title>{title}</title> : null}
           <Meta />
           <Links />
@@ -89,8 +179,11 @@ const Document = withEmotionCache(
           />
         </head>
         <body>
-          <Navbar />
-          <Container maxWidth="md">{children}</Container>
+          <ThemeProvider theme={getTheme(themeName)}>
+            <CssBaseline />
+            <Navbar />
+            <Container maxWidth="md">{children}</Container>
+          </ThemeProvider>
           <ScrollRestoration />
           <Scripts />
           <LiveReload />
@@ -101,10 +194,34 @@ const Document = withEmotionCache(
 );
 
 export default function App() {
+  // const loaderData = useLoaderData<RootLoaderData>();
+  // // console.log("loaderData", loaderData.theme);
+  // return (
+  //   <SettingsProvider specifiedTheme={loaderData.theme}>
+  //     <SettingsConsumer>
+  //       {({ theme }) => (
+  //         <Document theme={theme}>
+  //           <Outlet />
+  //         </Document>
+  //       )}
+  //     </SettingsConsumer>
+  //   </SettingsProvider>
+  // );
   return (
-    <Document>
+    <AppWithProvider>
       <Outlet />
-    </Document>
+    </AppWithProvider>
+  );
+}
+
+export function AppWithProvider({ children }: any) {
+  const loaderData = useLoaderData<RootLoaderData>();
+  return (
+    <SettingsProvider specifiedTheme={loaderData?.theme}>
+      <SettingsConsumer>
+        {({ theme }) => <Document theme={theme}>{children}</Document>}
+      </SettingsConsumer>
+    </SettingsProvider>
   );
 }
 
@@ -123,14 +240,14 @@ export function CatchBoundary() {
 
   if (caught.status === 404) {
     return (
-      <Document>
+      <AppWithProvider>
         <ErrorPage
           heroProps={{
             title: "404 - Oh no, you found a page that's missing stuff.",
             subtitle: `"${location.pathname}" does not exist in this site.`,
           }}
         />
-      </Document>
+      </AppWithProvider>
     );
   }
   throw new Error(`Unhandled error: ${caught.status}`);
@@ -138,13 +255,13 @@ export function CatchBoundary() {
 
 export function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <Document>
+    <AppWithProvider>
       <ErrorPage
         heroProps={{
           title: "App Error.",
           subtitle: error.message,
         }}
       />
-    </Document>
+    </AppWithProvider>
   );
 }

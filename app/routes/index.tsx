@@ -22,6 +22,11 @@ export default function Index() {
         </Button> */}
       </Box>
       <Box>
+        <Button component={Link} to="/testing">
+          Go to /Testing page
+        </Button>
+      </Box>
+      <Box>
         <Button component={Link} to="/random-url">
           Go to /single 404 Page
         </Button>

@@ -21,10 +21,10 @@ export default function handleRequest(
 
   const MuiRemixServer = () => (
     <CacheProvider value={cache}>
-      <ThemeProvider theme={getTheme("light")}>
-        <CssBaseline />
-        <RemixServer context={remixContext} url={request.url} />
-      </ThemeProvider>
+      {/* <ThemeProvider theme={getTheme("light")}> */}
+      {/* <CssBaseline /> */}
+      <RemixServer context={remixContext} url={request.url} />
+      {/* </ThemeProvider> */}
     </CacheProvider>
   );
 
