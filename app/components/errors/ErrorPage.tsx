@@ -1,5 +1,5 @@
 import { Link } from "remix";
-import { Typography, Button } from "@mui/material";
+import { Typography, Button, Box } from "@mui/material";
 
 interface HeroSectionProps {
   title: string;
@@ -25,15 +25,28 @@ export function ErrorPage({ heroProps }: { heroProps: HeroSectionProps }) {
         </div>
       </noscript>
 
-      <main>
-        <Typography variant="h4" gutterBottom>
+      <Box
+        sx={{
+          padding: 2,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        mx="auto"
+      >
+        <Typography variant="h4" gutterBottom textAlign="center">
           {heroProps.title}
         </Typography>
-        <Typography gutterBottom>{heroProps.subtitle}</Typography>
-        <Button component={Link} to="/">
-          Return Home
-        </Button>
-      </main>
+        <Typography gutterBottom textAlign="center">
+          {heroProps.subtitle}
+        </Typography>
+        <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
+          <Button component={Link} to="/" variant="outlined">
+            Return Home
+          </Button>
+        </Box>
+      </Box>
     </>
   );
 }

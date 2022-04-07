@@ -9,7 +9,7 @@ export function FourOhFour() {
   return (
     <ErrorPage
       heroProps={{
-        title: "404 - Oh no, you found a page that's missing stuff.",
+        title: "404 - Oh no, you found a page that's missing.",
         subtitle: `"${pathname}" is not a page on this site`,
       }}
     />

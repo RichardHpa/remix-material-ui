@@ -27,10 +27,6 @@ const getPreferredTheme = () =>
 
 function SettingsProvider({ children, specifiedTheme }: SettingsProviderProps) {
   const [theme, setTheme] = useState<Themes | null>(() => {
-    // On the server, if we don't have a specified theme then we should
-    // return null and the clientThemeCode will set the theme for us
-    // before hydration. Then (during hydration), this code will get the same
-    // value that clientThemeCode got so hydration is happy.
     if (specifiedTheme) {
       if (themes.includes(specifiedTheme)) {
         return specifiedTheme;
@@ -44,7 +40,6 @@ function SettingsProvider({ children, specifiedTheme }: SettingsProviderProps) {
     if (typeof window !== "object") {
       return null;
     }
-
     return getPreferredTheme();
   });
 
@@ -67,19 +62,6 @@ function SettingsProvider({ children, specifiedTheme }: SettingsProviderProps) {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme]);
-
-  useEffect(() => {
-    console.log("start theme as ", theme);
-  }, []);
-
-  // useEffect(() => {
-  //   const mediaQuery = window.matchMedia(prefersLightMQ);
-  //   const handleChange = () => {
-  //     setTheme(mediaQuery.matches ? Themes.LIGHT : Themes.DARK);
-  //   };
-  //   mediaQuery.addEventListener("change", handleChange);
-  //   return () => mediaQuery.removeEventListener("change", handleChange);
-  // }, []);
 
   const values = {
     theme,
