@@ -2,25 +2,23 @@ import * as React from "react";
 import type { ActionFunction, LoaderFunction, MetaFunction } from "remix";
 import {
   Form,
-  json,
   Link,
-  useActionData,
   redirect,
   useSearchParams,
+  json,
+  useActionData,
 } from "remix";
 import {
   Link as MuiLink,
   TextField,
-  FormControlLabel,
-  Checkbox,
   Grid,
   Button,
   Typography,
   Container,
 } from "@mui/material";
+import { getUserId, createUserSession } from "~/session.server";
 
-import { createUserSession, getUserId } from "~/session.server";
-import { verifyLogin } from "~/models/user.server";
+import { createUser, getUserByEmail } from "~/models/user.server";
 import { validateEmail } from "~/utils";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -30,9 +28,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 interface ActionData {
-  errors?: {
+  errors: {
     email?: string;
     password?: string;
+    confirmPassword?: string;
   };
 }
 
@@ -41,7 +40,7 @@ export const action: ActionFunction = async ({ request }) => {
   const email = formData.get("email");
   const password = formData.get("password");
   const redirectTo = formData.get("redirectTo");
-  const remember = formData.get("remember");
+  const confirmPassword = formData.get("confirmPassword");
 
   if (!validateEmail(email)) {
     return json<ActionData>(
@@ -57,6 +56,13 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
+  if (typeof confirmPassword !== "string") {
+    return json<ActionData>(
+      { errors: { confirmPassword: "Confirm Password is required" } },
+      { status: 400 }
+    );
+  }
+
   if (password.length < 8) {
     return json<ActionData>(
       { errors: { password: "Password is too short" } },
@@ -64,41 +70,52 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const user = await verifyLogin(email, password);
-
-  if (!user) {
+  if (password !== confirmPassword) {
     return json<ActionData>(
-      { errors: { email: "Invalid email or password" } },
+      { errors: { confirmPassword: "Passwords do not match" } },
       { status: 400 }
     );
   }
 
+  const existingUser = await getUserByEmail(email);
+  if (existingUser) {
+    return json<ActionData>(
+      { errors: { email: "A user already exists with this email" } },
+      { status: 400 }
+    );
+  }
+
+  const user = await createUser(email, password);
+
   return createUserSession({
     request,
     userId: user.id,
-    remember: remember === "on" ? true : false,
-    redirectTo: typeof redirectTo === "string" ? redirectTo : "/notes",
+    remember: false,
+    redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
   });
 };
 
 export const meta: MetaFunction = () => {
   return {
-    title: "Login",
+    title: "Sign Up",
   };
 };
 
-export default function LoginPage() {
+export default function Register() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/";
+  const redirectTo = searchParams.get("redirectTo") ?? undefined;
   const actionData = useActionData() as ActionData;
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (actionData?.errors?.email) {
       emailRef.current?.focus();
     } else if (actionData?.errors?.password) {
       passwordRef.current?.focus();
+    } else if (actionData?.errors?.confirmPassword) {
+      confirmPasswordRef.current?.focus();
     }
   }, [actionData]);
 
@@ -109,7 +126,7 @@ export default function LoginPage() {
         <Grid container spacing={2} sx={{ marginTop: 8 }}>
           <Grid item xs={12}>
             <Typography component="h1" variant="h5" align="center">
-              Sign in
+              Sign Up
             </Typography>
           </Grid>
 
@@ -125,8 +142,6 @@ export default function LoginPage() {
               autoFocus
               error={!!actionData?.errors?.email}
               helperText={actionData?.errors?.email}
-              // Remove this when dev work is done
-              value="rachel@remix.run"
             />
           </Grid>
 
@@ -142,31 +157,34 @@ export default function LoginPage() {
               autoComplete="current-password"
               error={!!actionData?.errors?.password}
               helperText={actionData?.errors?.password}
-              // Remove this when dev work is done
-              value="racheliscool"
             />
           </Grid>
 
           <Grid item xs={12}>
-            <FormControlLabel
-              control={<Checkbox name="remember" color="primary" />}
-              label="Remember me"
+            <TextField
+              ref={confirmPasswordRef}
+              required
+              fullWidth
+              name="confirmPassword"
+              label="Confirm Password"
+              type="password"
+              id="confirmPassword"
+              autoComplete="current-password"
+              error={!!actionData?.errors?.confirmPassword}
+              helperText={actionData?.errors?.confirmPassword}
             />
           </Grid>
 
           <Grid item xs={12}>
             <Button type="submit" fullWidth variant="contained">
-              Sign In
+              Sign Up
             </Button>
           </Grid>
 
-          <Grid item xs={12} container>
-            <Grid item xs>
-              <MuiLink variant="body2">Forgot password?</MuiLink>
-            </Grid>
+          <Grid item xs={12} container justifyContent="flex-end">
             <Grid item>
-              <MuiLink component={Link} to="/register" variant="body2">
-                Don't have an account? Sign Up
+              <MuiLink component={Link} to="/login" variant="body2">
+                Already have an account? Sign in
               </MuiLink>
             </Grid>
           </Grid>

@@ -7,20 +7,20 @@ import {
   Container,
   Tooltip,
   styled,
+  Button,
 } from "@mui/material";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
-import { Link } from "remix";
-// import { useClientStyle } from "~/utils/ClientStyleContext";
+import { Form, Link } from "remix";
 import { Themes } from "~/themes";
-// import { Form } from "remix";
 import { useSettings } from "~/utils/SettingsProvider";
+import { useOptionalUser } from "~/utils";
 
 const Offset = styled("div")(({ theme }) => theme.mixins.toolbar);
 
 export const Navbar = () => {
-  // const { theme, setTheme } = useClientStyle();
   const { theme, setTheme } = useSettings();
+  const user = useOptionalUser();
 
   const handleThemeChange = () => {
     if (theme === Themes.LIGHT) {
@@ -52,6 +52,19 @@ export const Navbar = () => {
             <Box />
 
             <Box>
+              {user ? (
+                <Box sx={{ display: "inline-flex" }}>
+                  <Form action="/logout" method="post">
+                    <Button type="submit" color="inherit">
+                      Logout
+                    </Button>
+                  </Form>
+                </Box>
+              ) : (
+                <Button color="inherit" component={Link} to="/login">
+                  Login
+                </Button>
+              )}
               <Tooltip
                 title={
                   theme === Themes.LIGHT
@@ -59,11 +72,9 @@ export const Navbar = () => {
                     : "Turn on the light"
                 }
               >
-                {/* <Form action="actions/set-theme" method="post"> */}
                 <IconButton
                   sx={{ p: 0 }}
                   color="inherit"
-                  // type="submit"
                   onClick={handleThemeChange}
                 >
                   {theme === Themes.LIGHT ? (
@@ -72,7 +83,6 @@ export const Navbar = () => {
                     <LightModeIcon />
                   )}
                 </IconButton>
-                {/* </Form> */}
               </Tooltip>
             </Box>
           </Toolbar>

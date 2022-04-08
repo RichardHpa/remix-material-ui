@@ -28,7 +28,7 @@ export const Layout = ({
       <Container
         component="main"
         maxWidth={containerWidth}
-        sx={{ display: "flex", flex: 1 }}
+        sx={{ display: "flex", flex: 1, alignItems: "flex-start" }}
       >
         {children}
       </Container>

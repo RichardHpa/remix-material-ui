@@ -51,12 +51,14 @@ export const meta: MetaFunction = () => ({
 
 export type RootLoaderData = {
   theme: Themes | null | any;
+  user: Awaited<ReturnType<typeof getUser>>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const themeSession = await getThemeSession(request);
   const data: RootLoaderData = {
     theme: themeSession.getTheme(),
+    user: await getUser(request),
   };
 
   return data;
