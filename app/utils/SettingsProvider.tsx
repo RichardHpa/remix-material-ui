@@ -35,8 +35,6 @@ function SettingsProvider({ children, specifiedTheme }: SettingsProviderProps) {
       }
     }
 
-    // there's no way for us to know what the theme should be in this context
-    // the client will have to figure it out before hydration.
     if (typeof window !== "object") {
       return null;
     }

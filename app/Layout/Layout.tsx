@@ -51,7 +51,7 @@ export const Layout = ({
 function Copyright() {
   return (
     <Typography color="text.secondary">
-      All rights reserved © Richard M. Hpa {new Date().getFullYear()}
+      All rights reserved © {new Date().getFullYear()}
     </Typography>
   );
 }

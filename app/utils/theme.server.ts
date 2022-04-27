@@ -1,7 +1,6 @@
 import { createCookieSessionStorage } from "remix";
 
 import { Themes, isTheme } from "~/themes";
-// import { Theme, isTheme } from './themeProvider';
 
 const cookieName = "mui-theme-3";
 

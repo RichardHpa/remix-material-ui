@@ -125,8 +125,6 @@ export default function LoginPage() {
               autoFocus
               error={!!actionData?.errors?.email}
               helperText={actionData?.errors?.email}
-              // Remove this when dev work is done
-              value="rachel@remix.run"
             />
           </Grid>
 
@@ -142,8 +140,6 @@ export default function LoginPage() {
               autoComplete="current-password"
               error={!!actionData?.errors?.password}
               helperText={actionData?.errors?.password}
-              // Remove this when dev work is done
-              value="racheliscool"
             />
           </Grid>
 

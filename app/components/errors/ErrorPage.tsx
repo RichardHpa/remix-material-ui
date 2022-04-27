@@ -33,7 +33,7 @@ export function ErrorPage({ heroProps }: { heroProps: HeroSectionProps }) {
           alignItems: "center",
           justifyContent: "center",
         }}
-        mx="auto"
+        m="auto"
       >
         <Typography variant="h4" gutterBottom textAlign="center">
           {heroProps.title}

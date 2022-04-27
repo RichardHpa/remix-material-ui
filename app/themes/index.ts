@@ -8,14 +8,12 @@ enum Themes {
   LIGHT = "light",
 }
 
-export type ThemeNames = "dark" | "light";
-
-const themes: Record<ThemeNames, Theme> = {
+const themes: Record<Themes, Theme> = {
   dark: darkTheme,
   light: lightTheme,
 };
 
-function getTheme(themeName: ThemeNames): Theme {
+function getTheme(themeName: Themes): Theme {
   return themes[themeName];
 }
 
