@@ -61,9 +61,14 @@ export const Navbar = () => {
                   </Form>
                 </Box>
               ) : (
-                <Button color="inherit" component={Link} to="/login">
-                  Login
-                </Button>
+                <>
+                  <Button color="inherit" component={Link} to="/login">
+                    Login
+                  </Button>
+                  <Button color="inherit" component={Link} to="/register">
+                    Register
+                  </Button>
+                </>
               )}
               <Tooltip
                 title={
